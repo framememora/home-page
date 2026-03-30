@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Framememora — Your memories, framed forever</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════
+   TOKENS — unchanged
+══════════════════════════════ */
+:root{
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'Jost',sans-serif;
+  --gold:#C9A96E; --gold-l:#E8D5B0;
+  --blush:#D4A5A0; --blush-l:#EDD5D0;
+}
+[data-theme="light"]{
+  --bg:#FAF7F2; --bg-alt:#F0EAE0; --bg-card:#FDF9F4; --bg-dk:#2C2420;
+  --tx:#2C2420; --tx-mid:#4A3F38; --tx-lo:#7A6E66;
+  --bdr:rgba(44,36,32,.10); --bdr-g:rgba(201,169,110,.28);
+  --ring:rgba(201,169,110,.14); --nav:rgba(250,247,242,.9);
+  --nav-b:rgba(201,169,110,.18); --shd:rgba(44,36,32,.12);
+  --glow:rgba(212,165,160,.15);
+  --dk-tx:#FAF7F2; --dk-sub:rgba(250,247,242,.48);
+  --pr-bg:#2C2420; --pr-ft:#352D28; --ft-bg:#1E1A17;
+}
+[data-theme="dark"]{
+  --bg:#18130F; --bg-alt:#211B16; --bg-card:#242018; --bg-dk:#0E0B09;
+  --tx:#F0EAE0; --tx-mid:#D4C8BC; --tx-lo:#8A7E74;
+  --bdr:rgba(240,234,224,.08); --bdr-g:rgba(201,169,110,.22);
+  --ring:rgba(201,169,110,.09); --nav:rgba(18,13,9,.94);
+  --nav-b:rgba(201,169,110,.12); --shd:rgba(0,0,0,.42);
+  --glow:rgba(212,165,160,.07);
+  --dk-tx:#F0EAE0; --dk-sub:rgba(240,234,224,.42);
+  --pr-bg:#211B16; --pr-ft:#2E2419; --ft-bg:#0E0B09;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--tx);overflow-x:hidden;transition:background .45s,color .45s}
+body::before{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.02;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* SCROLL PROGRESS */
+#spbar{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--blush),var(--gold));z-index:300;width:0}
+
+/* SCARCITY BANNER */
+.scarcity-bar{
+  background:linear-gradient(90deg,rgba(201,169,110,.12),rgba(212,165,160,.1),rgba(201,169,110,.12));
+  border-bottom:1px solid rgba(201,169,110,.15);
+  text-align:center;padding:10px 20px;
+  font-size:.72rem;font-weight:400;letter-spacing:.12em;
+  color:var(--gold);position:relative;z-index:99;
+  margin-top:0;
+}
+.scarcity-bar span{color:var(--blush)}
+
+/* FLOATING WA */
+.wa-float{
+  position:fixed;bottom:28px;right:28px;z-index:150;
+  width:56px;height:56px;border-radius:50%;background:#25D366;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 22px rgba(37,211,102,.38);text-decoration:none;
+  transition:transform .25s,box-shadow .25s;animation:waPop .55s 1.6s both;
+}
+.wa-float:hover{transform:scale(1.12);box-shadow:0 6px 30px rgba(37,211,102,.55)}
+.wa-float svg{width:28px;height:28px;fill:#fff}
+@keyframes waPop{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:20px 60px;display:flex;align-items:center;justify-content:space-between;
+  background:var(--nav);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--nav-b);transition:padding .3s,background .45s,border-color .45s}
+.nav-logo{font-family:var(--serif);font-size:1.45rem;font-weight:500;letter-spacing:.02em;
+  color:var(--tx);text-decoration:none;display:flex;align-items:center;gap:8px;transition:color .45s}
+.ndot{width:6px;height:6px;background:var(--gold);border-radius:50%;display:inline-block;margin-bottom:2px}
+.nav-links{display:flex;gap:36px;list-style:none}
+.nav-links a{font-size:.78rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--tx-mid);text-decoration:none;transition:color .25s}
+.nav-links a:hover{color:var(--gold)}
+.nav-r{display:flex;align-items:center;gap:14px}
+.tog{position:relative;width:48px;height:26px;border:1px solid var(--bdr-g);border-radius:30px;
+  background:transparent;outline:none;cursor:pointer;flex-shrink:0;overflow:hidden}
+[data-theme="dark"] .tog{background:rgba(201,169,110,.1)}
+.tog-thumb{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;
+  background:var(--gold);display:flex;align-items:center;justify-content:center;
+  transition:transform .35s cubic-bezier(.4,0,.2,1)}
+[data-theme="dark"] .tog-thumb{transform:translateX(22px)}
+.ti{font-size:10px;user-select:none}
+.sun{display:block}[data-theme="dark"] .sun{display:none}
+.moon{display:none}[data-theme="dark"] .moon{display:block}
+.nav-cta{font-size:.78rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;
+  text-decoration:none;color:#18130F;background:var(--gold);border:1px solid var(--gold);
+  padding:10px 22px;transition:background .25s,transform .2s}
+.nav-cta:hover{background:var(--gold-l);transform:translateY(-1px)}
+
+/* HERO */
+#hero{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  position:relative;padding:160px 60px 100px;overflow:hidden;
+  background:var(--bg-card);transition:background .45s}
+.ring{position:absolute;border-radius:50%;border:1px solid var(--ring);pointer-events:none}
+.ring:nth-child(1){width:500px;height:500px;top:50%;left:50%;transform:translate(-50%,-50%);animation:rp 4s ease-in-out infinite}
+.ring:nth-child(2){width:800px;height:800px;top:50%;left:50%;transform:translate(-50%,-50%);animation:rp 4s 1.2s ease-in-out infinite}
+.ring:nth-child(3){width:1100px;height:1100px;top:50%;left:50%;transform:translate(-50%,-50%);animation:rp 4s 2.4s ease-in-out infinite}
+@keyframes rp{0%,100%{opacity:.4;transform:translate(-50%,-50%) scale(1)}50%{opacity:.9;transform:translate(-50%,-50%) scale(1.02)}}
+.hero-glow{position:absolute;width:700px;height:700px;border-radius:50%;
+  background:radial-gradient(circle,var(--glow) 0%,transparent 70%);
+  top:50%;left:50%;transform:translate(-50%,-56%);pointer-events:none}
+.hframe{position:absolute;border:1px solid rgba(201,169,110,.2);pointer-events:none;overflow:hidden}
+.hf1{width:110px;height:82px;top:22%;left:8%;animation:fa 6s ease-in-out infinite;background:linear-gradient(135deg,#3D3028,#5C4A3C);opacity:.55}
+.hf2{width:76px;height:104px;top:60%;left:6%;animation:fa 7.5s 2s ease-in-out infinite;background:linear-gradient(135deg,#2C3830,#4A5E50);opacity:.45}
+.hf3{width:94px;height:70px;top:26%;right:7%;animation:fb 8s 1s ease-in-out infinite;background:linear-gradient(135deg,#4A3830,#6C5448);opacity:.5}
+.hf4{width:68px;height:92px;top:62%;right:9%;animation:fb 6.5s 3s ease-in-out infinite;background:linear-gradient(135deg,#303838,#4A5850);opacity:.4}
+@keyframes fa{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-14px) rotate(1deg)}}
+@keyframes fb{0%,100%{transform:translateY(0) rotate(2deg)}50%{transform:translateY(-18px) rotate(-1deg)}}
+
+.hero-in{text-align:center;position:relative;z-index:2;max-width:860px}
+.hero-eye{font-size:.72rem;font-weight:400;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--blush);margin-bottom:20px;opacity:0;transform:translateY(22px)}
+.hero-h1{font-family:var(--serif);font-size:clamp(3.2rem,7vw,6rem);font-weight:300;
+  line-height:1.08;letter-spacing:-.01em;color:var(--tx);margin-bottom:24px;
+  opacity:0;transform:translateY(22px);transition:color .45s}
+.hero-h1 em{font-style:italic;color:var(--blush)}
+.hero-micro{font-size:.8rem;font-weight:300;letter-spacing:.06em;color:var(--tx-lo);
+  margin-bottom:22px;opacity:0;transform:translateY(22px);font-style:italic;font-family:var(--serif)}
+.hero-sub{font-size:1.05rem;font-weight:300;line-height:1.75;color:var(--tx-lo);
+  max-width:560px;margin:0 auto 44px;opacity:0;transform:translateY(22px)}
+.hero-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:28px;
+  opacity:0;transform:translateY(22px)}
+.btn-gold{display:inline-block;font-family:var(--sans);font-size:.82rem;font-weight:500;
+  letter-spacing:.1em;text-transform:uppercase;text-decoration:none;
+  color:#18130F;background:var(--gold);padding:16px 36px;
+  transition:background .3s,transform .2s,box-shadow .2s}
+.btn-gold:hover{background:var(--gold-l);transform:translateY(-2px);box-shadow:0 8px 24px rgba(201,169,110,.28)}
+.btn-line{display:inline-block;font-family:var(--sans);font-size:.82rem;font-weight:400;
+  letter-spacing:.1em;text-transform:uppercase;text-decoration:none;
+  color:var(--tx);background:transparent;border:1px solid var(--bdr-g);padding:16px 36px;
+  transition:border-color .3s,background .3s,color .3s}
+.btn-line:hover{border-color:var(--gold);background:rgba(201,169,110,.07);color:var(--gold)}
+.hero-scarcity{
+  opacity:0;transform:translateY(22px);
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:.72rem;font-weight:400;letter-spacing:.1em;
+  color:var(--blush);background:rgba(212,165,160,.08);
+  border:1px solid rgba(212,165,160,.18);padding:7px 16px;border-radius:2px;
+  margin-bottom:20px;
+}
+.pulse-dot{width:7px;height:7px;border-radius:50%;background:var(--blush);
+  animation:dotPulse 1.8s ease-in-out infinite;flex-shrink:0}
+@keyframes dotPulse{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+.hero-trust{font-size:.75rem;font-weight:300;letter-spacing:.14em;color:var(--tx-lo);
+  opacity:0;transform:translateY(22px)}
+.hero-trust span{color:var(--gold);margin:0 6px}
+.scue{position:absolute;bottom:40px;left:50%;transform:translateX(-50%) translateY(22px);
+  display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0}
+
+/* Hero in-view — JS adds/removes this class to replay animations */
+#hero.hero-visible .hero-eye{animation:fU .9s .1s forwards}
+#hero.hero-visible .hero-h1{animation:fU .9s .25s forwards}
+#hero.hero-visible .hero-micro{animation:fU .9s .32s forwards}
+#hero.hero-visible .hero-sub{animation:fU .9s .4s forwards}
+#hero.hero-visible .hero-btns{animation:fU .9s .55s forwards}
+#hero.hero-visible .hero-trust{animation:fU .9s .7s forwards}
+#hero.hero-visible .scue{animation:fU 1s 1.2s forwards}
+.scue span{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--tx-lo)}
+.sline{width:1px;height:40px;background:linear-gradient(to bottom,var(--gold),transparent);animation:pulse 2s infinite}
+
+/* SHARED */
+section{padding:110px 60px}
+.lbl{font-size:.7rem;font-weight:400;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--blush);margin-bottom:16px;display:block}
+.ttl{font-family:var(--serif);font-size:clamp(2.2rem,4vw,3.2rem);font-weight:300;
+  line-height:1.15;color:var(--tx);margin-bottom:60px;transition:color .45s}
+.ttl em{font-style:italic;color:var(--blush)}
+.inner{max-width:1200px;margin:0 auto}
+
+/* HOW IT WORKS */
+#how{background:var(--bg-alt);position:relative;overflow:hidden;transition:background .45s}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--bdr)}
+.step{background:var(--bg-alt);padding:50px 44px;position:relative;overflow:hidden;transition:background .3s}
+.step:hover{background:var(--bg-card)}
+.snum{font-family:var(--serif);font-size:5rem;font-weight:300;color:rgba(201,169,110,.14);
+  line-height:1;margin-bottom:20px;display:block;transition:color .3s}
+.step:hover .snum{color:rgba(201,169,110,.30)}
+.stit{font-family:var(--serif);font-size:1.45rem;font-weight:400;color:var(--tx);margin-bottom:14px}
+.sdesc{font-size:.9rem;font-weight:300;line-height:1.8;color:var(--tx-lo)}
+.sacc{position:absolute;bottom:0;left:0;height:2px;width:0;background:var(--gold);transition:width .4s}
+.step:hover .sacc{width:100%}
+
+/* WHY */
+#why{background:var(--bg-card);transition:background .45s}
+.wgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:28px}
+.wcard{padding:44px 40px;border:1px solid var(--bdr);background:var(--bg-card);
+  position:relative;transition:border-color .3s,transform .3s,background .45s}
+.wcard:hover{border-color:var(--bdr-g);transform:translateY(-3px)}
+.wcard::before{content:'';position:absolute;top:0;left:0;width:36px;height:2px;background:var(--blush)}
+.wico{width:42px;height:42px;margin-bottom:20px;opacity:.6}
+.wtit{font-family:var(--serif);font-size:1.4rem;font-weight:400;color:var(--tx);margin-bottom:12px}
+.wdesc{font-size:.88rem;font-weight:300;line-height:1.8;color:var(--tx-lo)}
+
+/* ══════════════════════════════
+   ✦ INTERACTIVE EXPLODE SECTION
+══════════════════════════════ */
+#explode-wrapper{
+  position:relative;
+  height:300vh;
+}
+#explode{
+  background:var(--bg-dk);
+  padding:0;
+  position:sticky;
+  top:0;
+  height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+  cursor:none;
+  touch-action:pan-y;
+}
+.ex-cursor{
+  position:absolute;z-index:20;pointer-events:none;
+  width:44px;height:44px;border-radius:50%;
+  border:1px solid rgba(201,169,110,.5);
+  transform:translate(-50%,-50%);
+  transition:transform .05s,opacity .3s;
+  opacity:0;
+}
+.ex-cursor-dot{
+  position:absolute;z-index:21;pointer-events:none;
+  width:6px;height:6px;border-radius:50%;
+  background:var(--gold);
+  transform:translate(-50%,-50%);
+  opacity:0;
+}
+.ex-hint{
+  position:absolute;bottom:40px;left:50%;transform:translateX(-50%);
+  z-index:10;pointer-events:none;text-align:center;
+  transition:opacity .6s;
+}
+.ex-hint-inner{
+  font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(201,169,110,.5);
+  display:flex;align-items:center;gap:10px;
+}
+.ex-hint-inner::before,.ex-hint-inner::after{
+  content:'';display:block;width:24px;height:1px;background:rgba(201,169,110,.25);
+}
+.ex-label{
+  position:absolute;top:44px;left:50%;transform:translateX(-50%);
+  font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(201,169,110,.55);white-space:nowrap;pointer-events:none;z-index:10;
+}
+.ex-center-text{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  text-align:center;z-index:5;pointer-events:none;
+  opacity:1;transition:opacity .5s;
+}
+.ex-center-text.hidden{opacity:0}
+.ect-tag{font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--blush);display:block;margin-bottom:14px}
+.ect-h{font-family:var(--serif);font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:300;color:#F0EAE0;line-height:1.15}
+.ect-h em{font-style:italic;color:var(--blush)}
+.ect-sub{font-size:.85rem;font-weight:300;color:rgba(240,234,224,.4);margin-top:12px;line-height:1.7;max-width:380px}
+#ex-canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y}
+
+/* EXAMPLES */
+#examples{background:var(--bg-dk);color:var(--dk-tx);transition:background .45s}
+#examples .ttl{color:var(--dk-tx)}
+#examples .lbl{color:var(--blush-l);opacity:.85}
+.egrid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+.ecard{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+  overflow:hidden;transition:border-color .3s,transform .3s}
+.ecard:hover{border-color:rgba(201,169,110,.35);transform:translateY(-4px)}
+.ephoto{width:100%;height:240px;display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden}
+.ep1{background:linear-gradient(135deg,#3D3028 0%,#5C4A3C 50%,#2C2420 100%)}
+.ep2{background:linear-gradient(135deg,#2C3830 0%,#4A5E50 50%,#1E2C24 100%)}
+.eov{position:absolute;inset:0;background:radial-gradient(circle at 30% 40%,rgba(212,165,160,.2) 0%,transparent 60%)}
+.epname{font-family:var(--serif);font-size:2.4rem;font-weight:300;font-style:italic;
+  color:rgba(255,255,255,.22);letter-spacing:.05em;text-align:center;padding:20px;line-height:1.3;position:relative;z-index:1}
+.ebody{padding:30px 32px}
+.etag{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:10px}
+.etit{font-family:var(--serif);font-size:1.5rem;font-weight:400;color:var(--dk-tx);margin-bottom:6px}
+.evenue{font-size:.83rem;font-weight:300;color:var(--dk-sub);margin-bottom:22px}
+.bgh{display:inline-block;font-size:.74rem;font-weight:400;letter-spacing:.14em;text-transform:uppercase;
+  text-decoration:none;color:var(--gold);border:1px solid rgba(201,169,110,.35);padding:10px 22px;
+  transition:background .3s,border-color .3s,color .3s}
+.bgh:hover{background:var(--gold);border-color:var(--gold);color:#18130F}
+
+/* FEATURES */
+#features{background:var(--bg-alt);transition:background .45s}
+.fwrap{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.ftag-p{font-size:.92rem;font-weight:300;line-height:1.8;color:var(--tx-lo);margin-bottom:40px}
+.flist{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:0}
+.flist li{padding:16px 0;border-bottom:1px solid var(--bdr);font-size:.87rem;font-weight:300;
+  color:var(--tx-mid);display:flex;align-items:center;gap:10px;transition:color .2s}
+.flist li:hover{color:var(--tx)}
+.fdot{width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0}
+.fvis{position:relative;height:420px}
+.fc-main{position:absolute;left:20px;top:30px;width:280px;background:var(--bg-card);
+  border:1px solid var(--bdr);padding:28px;box-shadow:0 20px 60px var(--shd);transition:background .45s}
+.fc-sec{position:absolute;right:10px;bottom:20px;width:240px;background:var(--bg-dk);
+  padding:24px;box-shadow:0 20px 60px var(--shd);transition:background .45s}
+.fclbl{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--blush);display:block;margin-bottom:10px}
+.fcname{font-family:var(--serif);font-size:1.1rem;font-weight:400;color:var(--tx);margin-bottom:16px}
+.fc-sec .fcname{color:var(--dk-tx)}
+.mgal{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.mp{height:56px;border-radius:1px}
+.mp:nth-child(1){background:linear-gradient(135deg,#D4C5BC,#C4AFA4)}
+.mp:nth-child(2){background:linear-gradient(135deg,#C4C8B8,#A8B09C)}
+.mp:nth-child(3){background:linear-gradient(135deg,#D8C8C0,#C8B4AC)}
+.fstats{display:flex;justify-content:space-between;margin-top:12px}
+.fstat{text-align:center}
+.fsnum{font-family:var(--serif);font-size:1.4rem;font-weight:300;color:var(--tx-lo);display:block}
+.fslbl{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--tx-lo);opacity:.6}
+.fc-sec .fclbl{color:rgba(212,165,160,.75)}
+.qrm{width:60px;height:60px;background:rgba(255,255,255,.07);margin-bottom:10px;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:2px;padding:6px}
+.qrc{background:rgba(255,255,255,.55);border-radius:1px}
+.qrc:nth-child(3n){background:rgba(255,255,255,.1)}
+.qrc:nth-child(5n){background:rgba(255,255,255,.9)}
+.flink{font-size:.72rem;font-weight:300;color:rgba(250,247,242,.38);letter-spacing:.05em}
+
+/* TESTIMONIALS */
+#testimonials{background:var(--bg-card);transition:background .45s}
+.tgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:30px}
+.tcard{padding:52px 48px;background:var(--bg-alt);border-top:2px solid var(--blush-l);
+  position:relative;transition:border-color .3s,background .45s}
+.tcard:hover{border-top-color:var(--blush)}
+.tq{font-family:var(--serif);font-size:4rem;font-weight:300;color:var(--blush-l);
+  line-height:0;margin-bottom:24px;display:block}
+.ttxt{font-family:var(--serif);font-size:1.2rem;font-weight:300;font-style:italic;
+  line-height:1.75;color:var(--tx-mid);margin-bottom:28px}
+.tauth{font-size:.78rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:var(--tx-lo)}
+.tstars{display:flex;gap:3px;margin-bottom:24px}
+.star{color:var(--gold);font-size:.8rem}
+
+/* PRICING */
+#pricing{background:var(--pr-bg);color:var(--dk-tx);transition:background .45s}
+#pricing .ttl{color:var(--dk-tx)}
+#pricing .lbl{color:var(--blush-l);opacity:.8}
+.p-intro{max-width:600px;font-size:1rem;font-weight:300;line-height:1.85;color:var(--dk-sub);
+  margin-bottom:56px;font-family:var(--serif);font-style:italic}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;
+  background:rgba(255,255,255,.04);margin-bottom:44px}
+.pc{background:var(--pr-bg);padding:48px 38px;position:relative;transition:background .3s}
+.pc.feat{background:var(--pr-ft)}
+.pc:hover{background:rgba(255,255,255,.03)}
+.pc-badge{font-size:.6rem;font-weight:400;letter-spacing:.18em;text-transform:uppercase;
+  color:#18130F;background:var(--gold);padding:4px 12px;display:inline-block;margin-bottom:24px}
+.pc-name{font-size:.7rem;font-weight:400;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(250,247,242,.35);display:block;margin-bottom:12px}
+.pc-price{font-family:var(--serif);font-size:clamp(2.4rem,3.5vw,3.2rem);font-weight:300;
+  color:var(--dk-tx);line-height:1;margin-bottom:4px}
+.pc-price.custom-price{font-size:1.5rem;font-style:italic;color:var(--gold)}
+.pc-period{font-size:.75rem;font-weight:300;color:rgba(250,247,242,.32);margin-bottom:8px;display:block}
+.pc-hook{font-size:.88rem;font-weight:300;line-height:1.65;color:rgba(250,247,242,.48);
+  margin-bottom:32px;font-style:italic;font-family:var(--serif)}
+.pc-feats{list-style:none;margin-bottom:40px}
+.pc-feats li{padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);
+  font-size:.83rem;font-weight:300;color:rgba(250,247,242,.62);
+  display:flex;align-items:center;gap:10px}
+.cg{color:var(--gold);font-size:.82rem}
+.pc.custom{background:linear-gradient(135deg,rgba(201,169,110,.06) 0%,rgba(212,165,160,.04) 100%);
+  border:1px solid rgba(201,169,110,.18);overflow:hidden}
+.pc.custom::before{content:'';position:absolute;top:-60px;right:-60px;
+  width:180px;height:180px;border-radius:50%;
+  background:radial-gradient(circle,rgba(201,169,110,.08) 0%,transparent 70%);pointer-events:none}
+.bwa{display:flex;align-items:center;justify-content:center;gap:8px;
+  font-family:var(--sans);font-size:.76rem;font-weight:500;letter-spacing:.1em;
+  text-transform:uppercase;text-decoration:none;color:#fff;background:#25D366;
+  padding:14px 20px;width:100%;transition:background .3s}
+.bwa:hover{background:#1EBE5B}
+.bwa-custom{background:transparent;border:1px solid rgba(201,169,110,.4);color:var(--gold)}
+.bwa-custom:hover{background:rgba(201,169,110,.1);color:var(--gold-l)}
+.wa-ico{width:16px;height:16px;flex-shrink:0;fill:currentColor}
+.price-note{text-align:center;margin-top:44px;font-family:var(--serif);font-size:.92rem;
+  font-style:italic;font-weight:300;color:rgba(250,247,242,.28);line-height:1.8;
+  max-width:560px;margin-left:auto;margin-right:auto}
+.price-note strong{color:rgba(201,169,110,.55);font-style:normal;font-weight:400}
+
+/* CONTACT */
+#contact{background:var(--bg-alt);transition:background .45s}
+.contact-wrap{display:grid;grid-template-columns:1fr 1.2fr;gap:80px;align-items:start}
+.contact-left .ttl{margin-bottom:20px}
+.contact-tagline{font-size:.95rem;font-weight:300;line-height:1.8;color:var(--tx-lo);margin-bottom:44px}
+.contact-channels{display:flex;flex-direction:column;gap:0}
+.ch{display:flex;align-items:center;gap:18px;padding:22px 0;
+  border-bottom:1px solid var(--bdr);text-decoration:none;position:relative}
+.ch:last-child{border-bottom:none}
+.ch-icon{width:44px;height:44px;border-radius:50%;border:1px solid var(--bdr-g);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .25s,border-color .25s}
+.ch:hover .ch-icon{background:rgba(201,169,110,.1);border-color:var(--gold)}
+.ch-icon svg{width:18px;height:18px}
+.ch-name{font-size:.72rem;font-weight:400;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--tx-lo);display:block;margin-bottom:3px}
+.ch-val{font-family:var(--serif);font-size:1.15rem;font-weight:400;color:var(--tx);transition:color .25s}
+.ch:hover .ch-val{color:var(--gold)}
+.ch-arrow{margin-left:auto;font-size:.8rem;color:var(--tx-lo);opacity:.4;transition:opacity .25s,transform .25s}
+.ch:hover .ch-arrow{opacity:.8;transform:translateX(4px)}
+.ch.wa .ch-icon{border-color:rgba(37,211,102,.3)}
+.ch.wa:hover .ch-icon{background:rgba(37,211,102,.1);border-color:#25D366}
+.ch.wa .ch-icon svg{fill:#25D366}
+.ch.wa:hover .ch-val{color:#25D366}
+.ch.ig .ch-icon svg{stroke:var(--blush);fill:none}
+.ch.ig:hover .ch-icon{background:rgba(212,165,160,.1);border-color:var(--blush)}
+.ch.ig:hover .ch-val{color:var(--blush)}
+.contact-form-card{background:var(--bg-card);border:1px solid var(--bdr);padding:44px;transition:background .45s}
+.cform-title{font-family:var(--serif);font-size:1.5rem;font-weight:300;color:var(--tx);margin-bottom:6px}
+.cform-sub{font-size:.82rem;font-weight:300;color:var(--tx-lo);margin-bottom:32px;line-height:1.65}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.form-field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.form-field label{font-size:.68rem;font-weight:400;letter-spacing:.14em;text-transform:uppercase;color:var(--tx-lo)}
+.form-field input,.form-field textarea,.form-field select{
+  background:var(--bg-alt);border:1px solid var(--bdr);color:var(--tx);
+  font-family:var(--sans);font-size:.88rem;font-weight:300;padding:12px 16px;
+  outline:none;transition:border-color .25s,background .45s;appearance:none}
+.form-field input:focus,.form-field textarea:focus,.form-field select:focus{
+  border-color:var(--gold);background:rgba(201,169,110,.04)}
+.form-field textarea{resize:vertical;min-height:80px}
+.form-field select{cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23C9A96E' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;background-size:10px;padding-right:36px}
+.form-field select option{background:#211B16;color:#F0EAE0}
+[data-theme="light"] .form-field select option{background:#FDF9F4;color:#2C2420}
+.btn-submit{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+  font-family:var(--sans);font-size:.8rem;font-weight:500;letter-spacing:.1em;
+  text-transform:uppercase;color:#18130F;background:var(--gold);
+  border:none;padding:16px;cursor:pointer;transition:background .3s,transform .2s}
+.btn-submit:hover{background:var(--gold-l);transform:translateY(-1px)}
+.form-note{font-size:.72rem;font-weight:300;color:var(--tx-lo);text-align:center;margin-top:14px;line-height:1.65}
+
+/* FINAL CTA */
+#cta{background:var(--bg);text-align:center;padding:140px 60px;
+  position:relative;overflow:hidden;transition:background .45s}
+#cta::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at center,var(--glow) 0%,transparent 65%)}
+.cta-in{position:relative;z-index:1;max-width:680px;margin:0 auto}
+.corn{font-family:var(--serif);font-size:1.2rem;color:var(--gold);
+  letter-spacing:.5em;display:block;margin-bottom:28px;opacity:.7}
+.chd{font-family:var(--serif);font-size:clamp(2.4rem,5vw,4rem);font-weight:300;
+  line-height:1.1;color:var(--tx);margin-bottom:22px}
+.chd em{font-style:italic;color:var(--blush)}
+.csub{font-size:.95rem;font-weight:300;line-height:1.8;color:var(--tx-lo);margin-bottom:44px}
+.cbtns{display:flex;flex-direction:column;align-items:center;gap:12px}
+.cbwa{display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--sans);font-size:.82rem;font-weight:500;letter-spacing:.1em;
+  text-transform:uppercase;text-decoration:none;color:#fff;background:#25D366;
+  padding:16px 36px;transition:background .3s,transform .2s}
+.cbwa:hover{background:#1EBE5B;transform:translateY(-1px)}
+.csm{font-size:.74rem;font-weight:300;letter-spacing:.1em;color:var(--tx-lo);opacity:.7}
+
+/* FOOTER */
+footer{background:var(--ft-bg);color:rgba(250,247,242,.5);padding:60px 60px 40px;transition:background .45s}
+.ft{display:grid;grid-template-columns:2fr 1fr 1fr;gap:60px;padding-bottom:44px;
+  border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:32px}
+.fbname{font-family:var(--serif);font-size:1.3rem;font-weight:400;color:rgba(250,247,242,.85);display:block;margin-bottom:12px}
+.fbdesc{font-size:.85rem;font-weight:300;line-height:1.75;color:rgba(250,247,242,.3)}
+.fctit{font-size:.68rem;font-weight:400;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(250,247,242,.28);display:block;margin-bottom:20px}
+.fnav{list-style:none;display:flex;flex-direction:column;gap:10px}
+.fnav a{font-size:.87rem;font-weight:300;color:rgba(250,247,242,.38);text-decoration:none;transition:color .25s}
+.fnav a:hover{color:var(--gold)}
+.fcon{display:flex;flex-direction:column;gap:10px}
+.fcon a{font-size:.83rem;font-weight:300;color:rgba(250,247,242,.38);text-decoration:none;transition:color .25s}
+.fcon a:hover{color:var(--gold)}
+.fwa-l{display:flex!important;align-items:center;gap:6px;color:#25D366!important}
+.fb{display:flex;justify-content:space-between;align-items:center}
+.fcp{font-size:.75rem;font-weight:300;color:rgba(250,247,242,.2);letter-spacing:.06em}
+.fhrt{font-size:.75rem;font-weight:300;color:rgba(250,247,242,.2)}
+.fhrt span{color:var(--blush)}
+
+/* ANIMATIONS */
+@keyframes fU{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+.reveal{opacity:0;transform:translateY(28px)}
+.reveal.on{animation:fU .8s forwards}
+.d1.on{animation-delay:.1s}
+.d2.on{animation-delay:.2s}
+.d3.on{animation-delay:.3s}
+
+/* RESPONSIVE */
+@media(max-width:960px){
+  nav{padding:18px 24px}
+  .nav-links{display:none}
+  section{padding:80px 24px}
+  #hero{padding:140px 24px 80px}
+  .steps,.wgrid,.egrid,.fwrap,.tgrid,.pgrid,.contact-wrap{grid-template-columns:1fr}
+  .flist{grid-template-columns:1fr}
+  .fvis{height:280px}
+  .ft{grid-template-columns:1fr;gap:36px}
+  #cta{padding:90px 24px}
+  footer{padding:50px 24px 32px}
+  .hframe{display:none}
+  .form-row{grid-template-columns:1fr}
+  #explode-wrapper{height:220vh}
+  #explode{height:100vh}
+}
+</style>
+</head>
+<body>
+
+<div id="spbar"></div>
+
+<!-- Scarcity top bar -->
+<div class="scarcity-bar">
+  <span>● LIVE</span> &nbsp;Only <strong>3 slots</strong> remaining this month — couples booking now get priority delivery
+</div>
+
+<!-- Floating WhatsApp -->
+<a class="wa-float" href="https://wa.me/919995878853?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20Framememora." target="_blank" aria-label="Chat on WhatsApp">
+  <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#"><span class="ndot"></span>Framememora</a>
+  <ul class="nav-links">
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#explode">Our craft</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-r">
+    <button class="tog" id="tt" aria-label="Toggle dark mode">
+      <div class="tog-thumb"><span class="ti"><span class="sun">☀</span><span class="moon">☽</span></span></div>
+    </button>
+    <a class="nav-cta" href="https://wa.me/919995878853?text=Hi%2C%20I%27d%20like%20to%20book%20a%2010-minute%20demo%20with%20Framememora." target="_blank">Book a demo</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+  <div class="hero-glow"></div>
+  <div class="hframe hf1"></div><div class="hframe hf2"></div>
+  <div class="hframe hf3"></div><div class="hframe hf4"></div>
+  <div class="hero-in">
+    <p class="hero-eye">For couples who refuse to let their memories fade</p>
+    <h1 class="hero-h1">Your wedding happens <em>once.</em><br>Make it last forever.</h1>
+    <p class="hero-micro">Hundreds of photos. One beautiful website. Zero effort from you.</p>
+    <p class="hero-sub">We build stunning, private digital websites for weddings and events — done entirely for you, delivered in 7–10 days. Couples who see it always wish they had done it sooner.</p>
+    <div class="hero-btns">
+      <a href="https://wa.me/919995878853?text=Hi%2C%20I%27d%20like%20to%20book%20a%2010-minute%20demo%20with%20Framememora.%20When%20are%20you%20available%3F" target="_blank" class="btn-gold">Book your 10-minute demo →</a>
+      <a href="#explode" class="btn-line">See our craft</a>
+    </div>
+    <p class="hero-trust">Hand-crafted<span>·</span>Truly unlimited photos<span>·</span>Delivered in 7–10 days<span>·</span>Yours forever</p>
+  </div>
+  <div class="scue"><span>Scroll</span><div class="sline"></div></div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="inner">
+    <span class="lbl reveal">Three steps. That's all.</span>
+    <h2 class="ttl reveal d1">You share the memories.<br><em>We do everything else.</em></h2>
+    <div class="steps">
+      <div class="step reveal">
+        <span class="snum">01</span>
+        <h3 class="stit">Tell us your story</h3>
+        <p class="sdesc">Send us your photos, your date, your venue, and anything that made your day special. The more you share, the more beautiful the result.</p>
+        <div class="sacc"></div>
+      </div>
+      <div class="step reveal d1">
+        <span class="snum">02</span>
+        <h3 class="stit">We build it — completely</h3>
+        <p class="sdesc">Our team designs and builds your entire website using your exact photos and story. You don't lift a finger. You don't touch any code. Ever.</p>
+        <div class="sacc"></div>
+      </div>
+      <div class="step reveal d2">
+        <span class="snum">03</span>
+        <h3 class="stit">Share it. Keep it forever.</h3>
+        <p class="sdesc">We hand you a custom link and a QR code. Your guests open it instantly. You revisit it every anniversary for the rest of your lives.</p>
+        <div class="sacc"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section id="why">
+  <div class="inner">
+    <span class="lbl reveal">The difference</span>
+    <h2 class="ttl reveal d1">Why couples who see this<br><em>don't look elsewhere</em></h2>
+    <div class="wgrid">
+      <div class="wcard reveal">
+        <svg class="wico" viewBox="0 0 42 42" fill="none"><rect x="4" y="8" width="34" height="26" rx="2" stroke="#C9A96E" stroke-width="1.5"/><circle cx="21" cy="21" r="6" stroke="#C9A96E" stroke-width="1.5"/><circle cx="21" cy="21" r="2" fill="#C9A96E"/><path d="M14 8V5M28 8V5" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <h3 class="wtit">Every single photo</h3>
+        <p class="wdesc">No limits. No "choose your best 50." Send us every photo from your day and we add every single one. Most couples have 300–500. We never say no.</p>
+      </div>
+      <div class="wcard reveal d1">
+        <svg class="wico" viewBox="0 0 42 42" fill="none"><path d="M21 4L26 14H36L28 21L31 32L21 25L11 32L14 21L6 14H16L21 4Z" stroke="#C9A96E" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        <h3 class="wtit">Zero effort from you</h3>
+        <p class="wdesc">You're already planning the biggest day of your life. The last thing you need is another task. Send us what you have — we build everything. Nothing for you to figure out.</p>
+      </div>
+      <div class="wcard reveal d2">
+        <svg class="wico" viewBox="0 0 42 42" fill="none"><circle cx="21" cy="21" r="15" stroke="#C9A96E" stroke-width="1.5"/><path d="M21 10V21L27 27" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <h3 class="wtit">It will still be there in 20 years</h3>
+        <p class="wdesc">Social media deletes. Hard drives fail. Your Framememora website stays online forever — so your children can see it, and their children can too.</p>
+      </div>
+      <div class="wcard reveal d3">
+        <svg class="wico" viewBox="0 0 42 42" fill="none"><rect x="7" y="7" width="12" height="16" rx="1.5" stroke="#C9A96E" stroke-width="1.5"/><rect x="23" y="7" width="12" height="9" rx="1.5" stroke="#C9A96E" stroke-width="1.5"/><rect x="23" y="20" width="12" height="15" rx="1.5" stroke="#C9A96E" stroke-width="1.5"/><rect x="7" y="27" width="12" height="8" rx="1.5" stroke="#C9A96E" stroke-width="1.5"/></svg>
+        <h3 class="wtit">Looks premium on every screen</h3>
+        <p class="wdesc">Flawless on your mother's phone. Perfect on your friend's laptop. Beautiful on any device, anywhere in the world. Your guests will be genuinely impressed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ✦ INTERACTIVE EXPLODE -->
+<div id="explode-wrapper">
+<section id="explode">
+  <canvas id="ex-canvas"></canvas>
+  <div class="ex-cursor" id="exCursor"></div>
+  <div class="ex-cursor-dot" id="exCursorDot"></div>
+  <div class="ex-label">✦ Your photos, finding their place</div>
+  <div class="ex-center-text" id="exCenterText">
+    <span class="ect-tag" id="exTag">Scroll to reveal</span>
+    <h2 class="ect-h" id="exH">Every memory<br><em>taking its place.</em></h2>
+    <p class="ect-sub" id="exSub">Keep scrolling to watch your photos come alive.</p>
+  </div>
+  <div class="ex-hint" id="exHint" style="opacity:0">
+    <div class="ex-hint-inner">Move · Click · Watch</div>
+  </div>
+</section>
+</div>
+
+<!-- EXAMPLES -->
+<section id="examples">
+  <div class="inner">
+    <span class="lbl reveal">Real work</span>
+    <h2 class="ttl reveal d1">Couples who trusted us.<br><em>Memories that will last forever.</em></h2>
+    <div class="egrid">
+      <div class="ecard reveal">
+        <div class="ephoto ep1"><div class="eov"></div><div class="epname">Elara<br>&amp; Julian</div></div>
+        <div class="ebody">
+          <span class="etag">14 September 2026</span>
+          <h3 class="etit">Elara &amp; Julian</h3>
+          <p class="evenue">Château de Vallière, Provence</p>
+          <a href="#" class="bgh">View live site</a>
+        </div>
+      </div>
+      <div class="ecard reveal d1">
+        <div class="ephoto ep2"><div class="eov"></div><div class="epname">Priya<br>&amp; Arjun</div></div>
+        <div class="ebody">
+          <span class="etag">22 February 2026</span>
+          <h3 class="etit">Priya &amp; Arjun</h3>
+          <p class="evenue">Udaipur, Rajasthan</p>
+          <a href="#" class="bgh">View live site</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="inner fwrap">
+    <div>
+      <span class="lbl reveal">What's included</span>
+      <h2 class="ttl reveal d1">Everything your<br><em>day deserves</em></h2>
+      <p class="ftag-p reveal d2">Every element is built specifically for your wedding. Nothing generic, nothing template-looking. Your guests will know this was made for you.</p>
+      <ul class="flist reveal d2">
+        <li><span class="fdot"></span>Truly unlimited photo gallery</li>
+        <li><span class="fdot"></span>Interactive timeline &amp; schedule</li>
+        <li><span class="fdot"></span>Guest RSVP with dietary notes</li>
+        <li><span class="fdot"></span>Guestbook &amp; heartfelt messages</li>
+        <li><span class="fdot"></span>Elegant mobile-first design</li>
+        <li><span class="fdot"></span>Custom subdomain for your names</li>
+        <li><span class="fdot"></span>Easy QR code for guests</li>
+        <li><span class="fdot"></span>Delivered ready — no maintenance</li>
+      </ul>
+    </div>
+    <div class="fvis reveal d2">
+      <div class="fc-main">
+        <span class="fclbl">Your gallery</span>
+        <p class="fcname">Priya &amp; Arjun's Wedding</p>
+        <div class="mgal"><div class="mp"></div><div class="mp"></div><div class="mp"></div></div>
+        <div class="fstats">
+          <div class="fstat"><span class="fsnum">247</span><span class="fslbl">Photos</span></div>
+          <div class="fstat"><span class="fsnum">84</span><span class="fslbl">Guests</span></div>
+          <div class="fstat"><span class="fsnum">18</span><span class="fslbl">Messages</span></div>
+        </div>
+      </div>
+      <div class="fc-sec">
+        <span class="fclbl">Your link</span>
+        <div class="qrm"><div class="qrc"></div><div class="qrc"></div><div class="qrc"></div><div class="qrc"></div><div class="qrc"></div><div class="qrc"></div><div class="qrc"></div><div class="qrc"></div><div class="qrc"></div><div class="qrc"></div><div class="qrc"></div><div class="qrc"></div><div class="qrc"></div><div class="qrc"></div><div class="qrc"></div><div class="qrc"></div></div>
+        <p class="fcname">priyaarjun.framememora.com</p>
+        <p class="flink">Scan to open on any device</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="inner">
+    <span class="lbl reveal">From real couples</span>
+    <h2 class="ttl reveal d1">They were unsure too.<br><em>Then they saw it.</em></h2>
+    <div class="tgrid">
+      <div class="tcard reveal">
+        <div class="tstars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+        <span class="tq">"</span>
+        <p class="ttxt">We just sent our photos and ideas — the team did everything. The final website is more beautiful than we ever imagined. We still open it every single anniversary.</p>
+        <span class="tauth">Elara &amp; Julian — Provence, France</span>
+      </div>
+      <div class="tcard reveal d1">
+        <div class="tstars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+        <span class="tq">"</span>
+        <p class="ttxt">I was worried it would be complicated. It wasn't. They handled every single detail. My guests kept asking who built it. I'm so glad we didn't skip this.</p>
+        <span class="tauth">Priya Sharma — Udaipur, Rajasthan</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="inner">
+    <span class="lbl reveal">Transparent pricing</span>
+    <h2 class="ttl reveal d1">Know exactly what<br><em>you're getting</em></h2>
+    <p class="p-intro reveal d2">No haggling, no hidden fees, no surprises. The price you see is what you pay — and you'll wonder why you didn't do this for every celebration.</p>
+
+    <div class="pgrid">
+      <!-- SIGNATURE -->
+      <div class="pc feat reveal">
+        <span class="pc-badge">Most popular · 80% choose this</span>
+        <span class="pc-name">Signature Package</span>
+        <div class="pc-price">₹15,999</div>
+        <span class="pc-period">One-time · No subscriptions · Yours forever</span>
+        <p class="pc-hook">Everything you need for a website that will genuinely move people — built end-to-end without you touching a thing.</p>
+        <ul class="pc-feats">
+          <li><span class="cg">✦</span>Truly unlimited photos — every single one</li>
+          <li><span class="cg">✦</span>Full custom design, unique to you</li>
+          <li><span class="cg">✦</span>RSVP form + Guestbook for messages</li>
+          <li><span class="cg">✦</span>Interactive timeline &amp; full schedule</li>
+          <li><span class="cg">✦</span>Beautiful mobile-first design</li>
+          <li><span class="cg">✦</span>Custom link + QR code for guests</li>
+          <li><span class="cg">✦</span>Delivered in 7–10 days</li>
+        </ul>
+        <a href="https://wa.me/919995878853?text=Hi%2C%20I%27d%20like%20to%20book%20the%20Signature%20Package%20%E2%80%94%20%E2%82%B915%2C999%20for%20my%20wedding%20website%20on%20Framememora.%20When%20can%20we%20talk%3F" target="_blank" class="bwa">
+          <svg class="wa-ico" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Claim your slot — ₹15,999
+        </a>
+      </div>
+
+      <!-- LUXURY -->
+      <div class="pc reveal d1">
+        <span class="pc-name">Luxury Package</span>
+        <div class="pc-price">₹24,999</div>
+        <span class="pc-period">One-time · White-glove from start to finish</span>
+        <p class="pc-hook">For couples who want every pixel perfect — with revision rounds, a printed keepsake, and six months of updates included.</p>
+        <ul class="pc-feats">
+          <li><span class="cg">✦</span>Everything in Signature — all of it</li>
+          <li><span class="cg">✦</span>Two rounds of design revisions</li>
+          <li><span class="cg">✦</span>Extra time spent on every single detail</li>
+          <li><span class="cg">✦</span>6 months of free photo updates</li>
+          <li><span class="cg">✦</span>Printed welcome card with QR code</li>
+          <li><span class="cg">✦</span>Priority delivery — you go first</li>
+          <li><span class="cg">✦</span>Dedicated support throughout</li>
+        </ul>
+        <a href="https://wa.me/919995878853?text=Hi%2C%20I%27d%20like%20to%20book%20the%20Luxury%20Package%20%E2%80%94%20%E2%82%B924%2C999%20for%20my%20wedding%20website%20on%20Framememora.%20When%20can%20we%20talk%3F" target="_blank" class="bwa">
+          <svg class="wa-ico" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Claim your slot — ₹24,999
+        </a>
+      </div>
+
+      <!-- BESPOKE -->
+      <div class="pc custom reveal d2">
+        <span class="pc-name">Bespoke &amp; Custom</span>
+        <div class="pc-price custom-price">Tell us your vision</div>
+        <span class="pc-period">Fully tailored · No ceiling · One of a kind</span>
+        <p class="pc-hook">Something truly extraordinary — multi-language sites, destination weddings, large events, or anything that doesn't fit a box.</p>
+        <ul class="pc-feats">
+          <li><span class="cg">✦</span>Everything in Luxury — and beyond</li>
+          <li><span class="cg">✦</span>Custom features built for you</li>
+          <li><span class="cg">✦</span>Multi-language support</li>
+          <li><span class="cg">✦</span>Unlimited revisions — until perfect</li>
+          <li><span class="cg">✦</span>One full year of free updates</li>
+          <li><span class="cg">✦</span>Venue &amp; logistics integration</li>
+          <li><span class="cg">✦</span>Your own dedicated project manager</li>
+        </ul>
+        <a href="https://wa.me/919995878853?text=Hi%2C%20I%27m%20interested%20in%20a%20Bespoke%20custom%20package%20for%20Framememora.%20I%27d%20like%20to%20share%20my%20vision%20with%20you." target="_blank" class="bwa bwa-custom">
+          <svg class="wa-ico" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Tell us your vision
+        </a>
+      </div>
+    </div>
+
+    <p class="price-note reveal">
+      We show our prices because we respect your time. <strong>₹15,999 is deliberately chosen</strong> — high enough to signal the quality you'll receive, accessible enough that the right couples don't hesitate. If you're reading this, you're already thinking about it. <strong>That's your answer.</strong>
+    </p>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="inner">
+    <span class="lbl reveal">Talk to us</span>
+    <h2 class="ttl reveal d1">One conversation.<br><em>That's all it takes.</em></h2>
+    <div class="contact-wrap">
+      <div class="contact-left reveal">
+        <p class="contact-tagline">We're a small team — you speak directly to the people building your website. No bots, no automated replies, no waiting rooms. Reach us any way that feels natural to you.</p>
+        <div class="contact-channels">
+          <a class="ch wa" href="https://wa.me/919995878853?text=Hi%2C%20I%27d%20like%20to%20discuss%20my%20wedding%20website%20with%20Framememora." target="_blank">
+            <div class="ch-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            </div>
+            <div class="ch-info">
+              <span class="ch-name">WhatsApp — fastest reply, usually within an hour</span>
+              <span class="ch-val">+91 99958 78853</span>
+            </div>
+            <span class="ch-arrow">→</span>
+          </a>
+          <a class="ch ig" href="https://instagram.com/framememora.official" target="_blank">
+            <div class="ch-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D4A5A0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".5" fill="#D4A5A0" stroke="none"/></svg>
+            </div>
+            <div class="ch-info">
+              <span class="ch-name">Instagram — browse our real portfolio work</span>
+              <span class="ch-val">@framememora.official</span>
+            </div>
+            <span class="ch-arrow">→</span>
+          </a>
+          <a class="ch" href="/cdn-cgi/l/email-protection#a3c5d1c2cec6cec6ceccd1c28dccc5c5cac0cac2cfe3c4cec2cacf8dc0ccce">
+            <div class="ch-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+            </div>
+            <div class="ch-info">
+              <span class="ch-name">Email — for detailed enquiries &amp; formal quotes</span>
+              <span class="ch-val"><span class="__cf_email__" data-cfemail="b6d0c4d7dbd3dbd3dbd9c4d798d9d0d0dfd5dfd7daf6d1dbd7dfda98d5d9db">[email&#160;protected]</span></span>
+            </div>
+            <span class="ch-arrow">→</span>
+          </a>
+          <a class="ch" href="tel:+919995878853">
+            <div class="ch-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 014.07 12 19.79 19.79 0 011 3.18 2 2 0 012.98 1h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L7.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+            </div>
+            <div class="ch-info">
+              <span class="ch-name">Call — if you'd rather hear a voice</span>
+              <span class="ch-val">+91 99958 78853</span>
+            </div>
+            <span class="ch-arrow">→</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="contact-form-card reveal d1">
+        <h3 class="cform-title">Start the conversation</h3>
+        <p class="cform-sub">Fill this in and we'll reply with personalised ideas and exact pricing for your wedding — usually within a few hours. No obligation, no pressure.</p>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Your names</label>
+            <input type="text" placeholder="e.g. Priya &amp; Arjun">
+          </div>
+          <div class="form-field">
+            <label>Wedding date</label>
+            <input type="date">
+          </div>
+        </div>
+        <div class="form-field">
+          <label>WhatsApp number</label>
+          <input type="tel" placeholder="+91 98765 43210">
+        </div>
+        <div class="form-field">
+          <label>Which package feels right?</label>
+          <select>
+            <option value="">Choose…</option>
+            <option>Signature — ₹15,999</option>
+            <option>Luxury — ₹24,999</option>
+            <option>Bespoke &amp; Custom</option>
+            <option>Not sure yet — help me decide</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Your venue &amp; vision (optional)</label>
+          <textarea placeholder="Tell us where the wedding is, any themes or colours, anything special about your day…"></textarea>
+        </div>
+        <button class="btn-submit" onclick="handleSubmit(this)">
+          <svg class="wa-ico" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Send — we'll reply within hours
+        </button>
+        <p class="form-note">Tapping this opens WhatsApp with your details already written. One tap and it's sent.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section id="cta">
+  <div class="cta-in">
+    <span class="corn">— ✦ —</span>
+    <h2 class="chd reveal">The couples who regret it<br>are the ones who <em>waited.</em></h2>
+    <p class="csub reveal d1">Your wedding day is already planned. Your photos already exist. A 10-minute conversation is all it takes to make sure none of it disappears.</p>
+    <div class="cbtns reveal d2">
+      <a href="https://wa.me/919995878853?text=Hi%2C%20I%27d%20like%20to%20book%20a%2010-minute%20demo%20with%20Framememora.%20When%20are%20you%20available%3F" target="_blank" class="cbwa">
+        <svg class="wa-ico" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Book your 10-minute demo now
+      </a>
+      <p class="csm">Only 3 slots left this month. Next available: April 2026.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="inner">
+    <div class="ft">
+      <div>
+        <span class="fbname">Framememora</span>
+        <p class="fbdesc">Beautiful digital homes for your most important memories. Built with care, delivered with love from Kerala, India.</p>
+      </div>
+      <div>
+        <span class="fctit">Navigate</span>
+        <ul class="fnav">
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#explode">Our craft</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <span class="fctit">Find us</span>
+        <div class="fcon">
+          <a href="/cdn-cgi/l/email-protection#204652414d454d454d4f52410e4f4646494349414c60474d41494c0e434f4d"><span class="__cf_email__" data-cfemail="e08692818d858d858d8f9281ce8f8686898389818ca0878d81898cce838f8d">[email&#160;protected]</span></a>
+          <a href="https://wa.me/919995878853" target="_blank" class="fwa-l">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            +91 99958 78853
+          </a>
+          <a href="https://instagram.com/framememora.official" target="_blank">@framememora.official</a>
+        </div>
+      </div>
+    </div>
+    <div class="fb">
+      <span class="fcp">© 2026 Framememora. All rights reserved.</span>
+      <span class="fhrt">Made with <span>♥</span> in Kerala, India</span>
+    </div>
+  </div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+/* ══ DARK MODE ══ */
+const html = document.documentElement;
+html.setAttribute('data-theme', localStorage.getItem('fm-theme') || 'dark');
+document.getElementById('tt').addEventListener('click', () => {
+  const n = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', n); localStorage.setItem('fm-theme', n);
+});
+
+/* ══ SCROLL PROGRESS ══ */
+const spbar = document.getElementById('spbar');
+window.addEventListener('scroll', () => {
+  spbar.style.width = (window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100) + '%';
+}, {passive:true});
+
+/* ══ REVEAL — re-fires on every scroll direction ══ */
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      // Force animation restart: remove class, reflow, re-add
+      e.target.classList.remove('on');
+      void e.target.offsetWidth; // reflow
+      e.target.classList.add('on');
+    } else {
+      e.target.classList.remove('on');
+    }
+  });
+}, {threshold: 0.1, rootMargin: '0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+/* ══ HERO — replay animations every time hero enters view ══ */
+const heroEl = document.getElementById('hero');
+const heroObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      // Strip class → reflow → re-add so @keyframe restarts
+      heroEl.classList.remove('hero-visible');
+      void heroEl.offsetWidth;
+      heroEl.classList.add('hero-visible');
+    } else {
+      heroEl.classList.remove('hero-visible');
+    }
+  });
+}, {threshold: 0.15});
+heroObs.observe(heroEl);
+
+/* ══ NAV ══ */
+const nav = document.querySelector('nav');
+const sb = document.querySelector('.scarcity-bar');
+window.addEventListener('scroll', () => {
+  const m = window.innerWidth <= 960;
+  nav.style.padding = window.scrollY > 60 ? (m?'12px 24px':'12px 60px') : (m?'18px 24px':'20px 60px');
+}, {passive:true});
+
+/* ══ FORM SUBMIT ══ */
+function handleSubmit(btn) {
+  const card = btn.closest('.contact-form-card');
+  const f = card.querySelectorAll('input,select,textarea');
+  const name = f[0].value||'Not provided', date = f[1].value||'Not provided',
+        phone = f[2].value||'Not provided', pkg = f[3].value||'Not provided',
+        vision = f[4].value||'';
+  const msg = `Hi, I'd like to enquire about Framememora.\n\n👤 Names: ${name}\n📅 Date: ${date}\n📱 Phone: ${phone}\n📦 Package: ${pkg}${vision?'\n✨ Vision: '+vision:''}`;
+  window.open('https://wa.me/919995878853?text=' + encodeURIComponent(msg), '_blank');
+}
+
+/* ══════════════════════════════════════
+   ✦ SCROLL-DRIVEN PHOTO EXPLODE
+   Sonos-style: scroll triggers explosion,
+   then section becomes fully interactive
+══════════════════════════════════════ */
+(function(){
+  const wrapper   = document.getElementById('explode-wrapper');
+  const section   = document.getElementById('explode');
+  const canvas    = document.getElementById('ex-canvas');
+  const cursor    = document.getElementById('exCursor');
+  const cursorDot = document.getElementById('exCursorDot');
+  const hint      = document.getElementById('exHint');
+  const centerTxt = document.getElementById('exCenterText');
+  const exTag     = document.getElementById('exTag');
+  const exH       = document.getElementById('exH');
+  const exSub     = document.getElementById('exSub');
+  const ctx = canvas.getContext('2d');
+
+  let W, H;
+  let mouse = {x:-999, y:-999};
+  let exploding = false, explodeTimer = 0;
+  let interacted = false;
+  let scrollProgress = 0;   // 0→1 as user scrolls through wrapper
+  let interactivePhase = false;
+  let lastT = 0;
+
+  /* ── Easings ── */
+  function easeOutExpo(x)  { return x >= 1 ? 1 : 1 - Math.pow(2, -10 * x); }
+  function easeOutBack(x)  {
+    const c1 = 1.55, c3 = c1 + 1;
+    return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+  }
+  function easeInOutCubic(x){ return x < 0.5 ? 4*x*x*x : 1 - Math.pow(-2*x+2,3)/2; }
+
+  /* ── Scroll tracking ── */
+  function updateScroll() {
+    const rect   = wrapper.getBoundingClientRect();
+    const wrapH  = wrapper.offsetHeight;
+    const secH   = section.offsetHeight;
+    const scrolled   = -rect.top;
+    const scrollable = wrapH - secH;
+    if (scrollable > 0) {
+      scrollProgress = Math.max(0, Math.min(1, scrolled / scrollable));
+    }
+
+    // Reset fully when scrolled back above the wrapper
+    if (scrollProgress <= 0.02 && interactivePhase) {
+      interactivePhase = false;
+      interacted = false;
+      hint.style.opacity = '0';
+      // Reset center text back to "Scroll to reveal"
+      exTag.textContent    = 'Scroll to reveal';
+      exH.innerHTML        = 'Every memory<br><em>taking its place.</em>';
+      exSub.textContent    = 'Keep scrolling to watch your photos come alive.';
+      centerTxt.classList.remove('hidden');
+      cursor.style.opacity    = '0';
+      cursorDot.style.opacity = '0';
+      // Reset all frames back to center so explosion replays
+      frames.forEach(f => {
+        f.x = 0.5; f.y = 0.5;
+        f.vx = 0;  f.vy = 0;
+        f.rot = f.startRot;
+        f.opacity = 0;
+        f.scale   = 0;
+      });
+    }
+
+    // Transition to interactive phase at 88% scroll
+    if (scrollProgress >= 0.88 && !interactivePhase) {
+      interactivePhase = true;
+      exTag.textContent = 'Interactive';
+      exH.innerHTML   = 'Move your cursor.<br><em>Click to explode.</em>';
+      exSub.textContent = 'Every photo you send us gets placed with the same care — each one matters, none are left out.';
+      hint.style.transition = 'opacity .8s';
+      hint.style.opacity = '1';
+    }
+  }
+  window.addEventListener('scroll', updateScroll, {passive:true});
+
+  /* ── Palettes & shapes ── */
+  const PALETTES = [
+    ['#5C4A3C','#3D3028'], ['#4A5E50','#2C3830'], ['#6C5448','#4A3830'],
+    ['#5E4838','#3C2E22'], ['#485E58','#303E38'], ['#624840','#3E2E28'],
+    ['#3E5048','#283630'], ['#584040','#382828'], ['#4E5A40','#323C28'],
+    ['#5A4E3C','#3A3224'], ['#4A4E5A','#2E3238'], ['#5E4A50','#3C2E34'],
+    ['#3C5050','#263434'], ['#585040','#383428'], ['#604844','#3E302C'],
+    ['#4A5840','#303C28'],
+  ];
+  const SHAPES = [
+    [180,135],[120,168],[155,155],[220,118],[115,190],
+    [165,124],[100,140],[200,100],[140,196],[175,132],
+    [108,150],[190,108],[130,182],[160,120],[145,145],[210,126],
+  ];
+
+  /* ── Frame class ── */
+  class Frame {
+    constructor(i) {
+      this.i   = i;
+      this.pal = PALETTES[i % PALETTES.length];
+      [this.bw, this.bh] = SHAPES[i % SHAPES.length];
+
+      // Rest position — natural orbit around center
+      const angle  = (i / 16) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
+      const radius = 0.22 + (i % 3) * 0.09;
+      this.restX = 0.5 + Math.cos(angle) * radius;
+      this.restY = 0.5 + Math.sin(angle) * radius * 0.65;
+
+      // Current position starts at center
+      this.x = 0.5; this.y = 0.5;
+      this.vx = 0;  this.vy = 0;
+
+      // Rotation: wild spin at start, settles to subtle rest rotation
+      this.startRot = (Math.random() - 0.5) * 480;
+      this.restRot  = (Math.random() - 0.5) * 14;
+      this.rot      = this.startRot;
+
+      this.opacity = 0;
+      this.scale   = 0;
+      this.phase   = Math.random() * Math.PI * 2;
+
+      // Stagger delay so frames don't all explode at once
+      this.delay = (i / 16) * 0.18;
+    }
+
+    update(dt, t) {
+      /* ── SCROLL-DRIVEN explosion phase ── */
+      if (!interactivePhase) {
+        const localProg = Math.max(0, Math.min(1, (scrollProgress - this.delay) / (0.88 - this.delay)));
+        const eased = easeOutBack(Math.max(0, localProg));
+
+        this.x       = 0.5 + (this.restX - 0.5) * eased;
+        this.y       = 0.5 + (this.restY - 0.5) * eased;
+        this.rot     = this.startRot + (this.restRot - this.startRot) * easeOutExpo(Math.max(0, localProg));
+        this.opacity = Math.min(0.92, eased * 1.4);
+        this.scale   = Math.min(1, eased * 1.3);
+        return;
+      }
+
+      /* ── INTERACTIVE phase ── */
+      const rx = this.restX * W, ry = this.restY * H;
+      const px = this.x * W,    py = this.y * H;
+
+      // Gentle ambient drift
+      const drift  = Math.sin(t * 0.4 + this.phase) * 4;
+      const driftY = Math.cos(t * 0.35 + this.phase + 1) * 3;
+
+      // Mouse repulsion
+      let fx = 0, fy = 0;
+      const dx = px - mouse.x, dy = py - mouse.y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      const REPEL = 170;
+      if (dist < REPEL && dist > 0) {
+        const strength = (1 - dist / REPEL) * 0.02;
+        fx = (dx / dist) * strength * W;
+        fy = (dy / dist) * strength * H;
+      }
+
+      // Click-explode force
+      if (exploding) {
+        const cx = W / 2, cy = H / 2;
+        const ex = px - cx, ey = py - cy;
+        const ed = Math.sqrt(ex*ex + ey*ey) + 1;
+        fx += (ex / ed) * 32;
+        fy += (ey / ed) * 22;
+      }
+
+      // Spring back to rest
+      const targX = (rx + drift) / W;
+      const targY = (ry + driftY) / H;
+      this.vx += (targX - this.x) * 0.06 + fx / W;
+      this.vy += (targY - this.y) * 0.06 + fy / H;
+      this.vx *= 0.82; this.vy *= 0.82;
+      this.x  += this.vx; this.y  += this.vy;
+
+      // Rotation reacts to mouse
+      const rotTarget = this.restRot + (mouse.x !== -999 ? (px - W/2) * 0.012 : 0);
+      this.rot += (rotTarget - this.rot) * 0.08;
+      this.opacity = 0.92;
+      this.scale   = 1;
+    }
+
+    draw() {
+      if (this.opacity < 0.02 || this.scale < 0.01) return;
+      const px = this.x * W, py = this.y * H;
+      const base = Math.min(W, H) / 900;
+      const w = this.bw * base * this.scale;
+      const h = this.bh * base * this.scale;
+
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(this.rot * Math.PI / 180);
+      ctx.globalAlpha = this.opacity;
+
+      // Drop shadow
+      ctx.shadowColor = 'rgba(0,0,0,0.55)';
+      ctx.shadowBlur  = 22;
+      ctx.shadowOffsetY = 7;
+
+      // Photo gradient fill
+      const grad = ctx.createLinearGradient(-w/2, -h/2, w/2, h/2);
+      grad.addColorStop(0, this.pal[0]);
+      grad.addColorStop(1, this.pal[1]);
+      ctx.fillStyle = grad;
+      ctx.fillRect(-w/2, -h/2, w, h);
+
+      // Gold border
+      ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0;
+      ctx.strokeStyle = 'rgba(201,169,110,0.38)';
+      ctx.lineWidth   = 1.2;
+      ctx.strokeRect(-w/2, -h/2, w, h);
+
+      // Dark overlay on bottom
+      const og = ctx.createLinearGradient(0, h*0.3, 0, h/2);
+      og.addColorStop(0, 'transparent');
+      og.addColorStop(1, 'rgba(0,0,0,0.45)');
+      ctx.fillStyle = og;
+      ctx.fillRect(-w/2, -h/2, w, h);
+
+      // Gold accent dot
+      ctx.fillStyle = 'rgba(201,169,110,0.55)';
+      ctx.beginPath();
+      ctx.arc(w/2 - 9, -h/2 + 9, 3.5, 0, Math.PI*2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+  }
+
+  /* ── Particle burst on explode ── */
+  let particles = [];
+  class Particle {
+    constructor(x, y) {
+      this.x  = x; this.y  = y;
+      const a = Math.random() * Math.PI * 2;
+      const s = 3 + Math.random() * 7;
+      this.vx = Math.cos(a) * s; this.vy = Math.sin(a) * s;
+      this.life = 1; this.size = 2 + Math.random() * 3;
+      this.color = Math.random() > 0.5 ? 'rgba(201,169,110,' : 'rgba(212,165,160,';
+    }
+    update() {
+      this.x += this.vx; this.y += this.vy;
+      this.vy += 0.15;
+      this.vx *= 0.96; this.vy *= 0.96;
+      this.life -= 0.025;
+    }
+    draw() {
+      if (this.life <= 0) return;
+      ctx.globalAlpha = this.life * 0.7;
+      ctx.fillStyle   = this.color + this.life + ')';
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size * this.life, 0, Math.PI*2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  /* ── Core loop ── */
+  let frames = [];
+  function resize() {
+    W = canvas.width  = section.offsetWidth;
+    H = canvas.height = section.offsetHeight;
+  }
+  function init() {
+    resize();
+    frames = Array.from({length:16}, (_, i) => new Frame(i));
+    requestAnimationFrame(tick);
+  }
+  function tick(ts) {
+    const dt = Math.min((ts - lastT) / 1000, 0.05);
+    const t  = ts / 1000;
+    lastT = ts;
+    ctx.clearRect(0, 0, W, H);
+
+    if (exploding) {
+      explodeTimer -= dt;
+      if (explodeTimer <= 0) exploding = false;
+    }
+
+    // Update and draw particles
+    particles = particles.filter(p => p.life > 0);
+    particles.forEach(p => { p.update(); p.draw(); });
+
+    frames.forEach(f => { f.update(dt, t); f.draw(); });
+    requestAnimationFrame(tick);
+  }
+
+  /* ── Mouse / Touch events ── */
+  section.addEventListener('mousemove', e => {
+    const r  = section.getBoundingClientRect();
+    const mx = e.clientX - r.left, my = e.clientY - r.top;
+    mouse.x = mx; mouse.y = my;
+    cursor.style.left    = mx + 'px'; cursor.style.top = my + 'px';
+    cursorDot.style.left = mx + 'px'; cursorDot.style.top = my + 'px';
+    if (interactivePhase) {
+      cursor.style.opacity = '1'; cursorDot.style.opacity = '1';
+      if (!interacted) {
+        interacted = true;
+        hint.style.opacity = '0.35';
+        centerTxt.classList.add('hidden');
+      }
+    }
+  });
+
+  section.addEventListener('mouseleave', () => {
+    mouse.x = -999; mouse.y = -999;
+    cursor.style.opacity = '0'; cursorDot.style.opacity = '0';
+  });
+
+  section.addEventListener('click', e => {
+    if (!interactivePhase) return;
+    exploding = true; explodeTimer = 0.65;
+    // Spawn particle burst
+    const r = section.getBoundingClientRect();
+    const bx = e.clientX - r.left, by = e.clientY - r.top;
+    for (let i = 0; i < 22; i++) particles.push(new Particle(bx, by));
+    // Ripple cursor
+    cursor.style.transform = 'translate(-50%,-50%) scale(2.8)';
+    cursor.style.opacity   = '0';
+    setTimeout(() => {
+      cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+      cursor.style.opacity   = '1';
+    }, 350);
+  });
+
+  section.addEventListener('touchmove', e => {
+    // Only track touch position — do NOT call e.preventDefault()
+    // so the page can scroll normally through the sticky section on mobile.
+    const r = section.getBoundingClientRect();
+    const t = e.touches[0];
+    mouse.x = t.clientX - r.left; mouse.y = t.clientY - r.top;
+    if (interactivePhase && !interacted) {
+      interacted = true;
+      hint.style.opacity = '0.35';
+      centerTxt.classList.add('hidden');
+    }
+  }, {passive:true});
+
+  section.addEventListener('touchend', () => {
+    if (!interactivePhase) return;
+    exploding = true; explodeTimer = 0.65;
+    for (let i = 0; i < 18; i++) particles.push(new Particle(mouse.x, mouse.y));
+    mouse.x = -999; mouse.y = -999;
+  });
+
+  window.addEventListener('resize', resize);
+  init();
+})();
+
+
+</script>
+</body>
+</html>
